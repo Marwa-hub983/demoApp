@@ -126,6 +126,18 @@ class AdminCubit extends Cubit<AdminState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     try {
+      // Check SKU uniqueness
+      final skuExists = _mockDb.products.any((p) => p['sku'].toString().trim().toLowerCase() == sku.trim().toLowerCase());
+      if (skuExists) {
+        throw Exception('A product with SKU "$sku" already exists.');
+      }
+
+      // Check Barcode uniqueness
+      final barcodeExists = _mockDb.products.any((p) => p['barcode'].toString().trim().toLowerCase() == barcode.trim().toLowerCase());
+      if (barcodeExists) {
+        throw Exception('A product with barcode "$barcode" already exists.');
+      }
+
       final newId = 'prod_${DateTime.now().millisecondsSinceEpoch}';
       final newProdJson = {
         'id': newId,
@@ -150,22 +162,44 @@ class AdminCubit extends Cubit<AdminState> {
       _mockDb.stockHistory.add({
         'id': 'stock_log_${DateTime.now().millisecondsSinceEpoch}',
         'productId': newId,
+        'productName': name,
         'sku': sku,
+        'barcode': barcode,
+        'previousStock': 0,
+        'updatedStock': initialStock,
         'change': initialStock,
-        'type': 'create',
+        'type': 'Restock',
         'notes': 'Product created catalog load',
         'date': DateTime.now().toIso8601String(),
+        'user': 'System',
       });
 
       await loadDashboard();
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString().replaceAll('Exception: ', '')));
+      rethrow;
     }
   }
 
   Future<void> editProduct(ProductEntity product) async {
     emit(state.copyWith(isLoading: true));
     try {
+      // Check SKU uniqueness
+      final skuExists = _mockDb.products.any((p) =>
+          p['sku'].toString().trim().toLowerCase() == product.sku.trim().toLowerCase() &&
+          p['id'] != product.id);
+      if (skuExists) {
+        throw Exception('A product with SKU "${product.sku}" already exists.');
+      }
+
+      // Check Barcode uniqueness
+      final barcodeExists = _mockDb.products.any((p) =>
+          p['barcode'].toString().trim().toLowerCase() == product.barcode.trim().toLowerCase() &&
+          p['id'] != product.id);
+      if (barcodeExists) {
+        throw Exception('A product with barcode "${product.barcode}" already exists.');
+      }
+
       final index = _mockDb.products.indexWhere((p) => p['id'] == product.id);
       if (index == -1) throw Exception('Product catalog missing');
 
@@ -183,11 +217,13 @@ class AdminCubit extends Cubit<AdminState> {
       existing['variants'] = product.variants;
       existing['isEnabled'] = product.isEnabled;
 
-      // Note: Stock remains managed by restock triggers
+      // Sync updated product to Firestore
+      _mockDb.products.syncDocument(product.id);
 
       await loadDashboard();
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString().replaceAll('Exception: ', '')));
+      rethrow;
     }
   }
 
@@ -201,30 +237,71 @@ class AdminCubit extends Cubit<AdminState> {
     }
   }
 
-  Future<void> restockProduct(String productId, int amount, String notes) async {
+  Future<void> updateStock({
+    required String productId,
+    required int amount,
+    required String action,
+    required String userName,
+    required String notes,
+  }) async {
     emit(state.copyWith(isLoading: true));
     try {
       final index = _mockDb.products.indexWhere((p) => p['id'] == productId);
       if (index == -1) throw Exception('Product missing');
 
       final prod = _mockDb.products[index];
-      final currentStock = prod['stock'] as int;
-      prod['stock'] = currentStock + amount;
+      final previousStock = prod['stock'] as int;
+      final updatedStock = previousStock + amount;
+
+      if (updatedStock < 0) {
+        throw Exception('Stock cannot be negative. Current stock is $previousStock.');
+      }
+
+      prod['stock'] = updatedStock;
+
+      // Sync restocked product stock back to Firestore
+      _mockDb.products.syncDocument(productId);
 
       _mockDb.stockHistory.add({
         'id': 'stock_log_${DateTime.now().millisecondsSinceEpoch}',
         'productId': productId,
+        'productName': prod['name'],
         'sku': prod['sku'],
+        'barcode': prod['barcode'],
+        'previousStock': previousStock,
+        'updatedStock': updatedStock,
         'change': amount,
-        'type': 'restock',
+        'type': action,
         'notes': notes,
         'date': DateTime.now().toIso8601String(),
+        'user': userName,
       });
 
       await loadDashboard();
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString().replaceAll('Exception: ', '')));
+      rethrow;
     }
+  }
+
+  Future<void> restockProduct(String productId, int amount, String notes, {String userName = 'Admin'}) async {
+    await updateStock(
+      productId: productId,
+      amount: amount,
+      action: 'Restock',
+      userName: userName,
+      notes: notes,
+    );
+  }
+
+  Future<void> reduceStock(String productId, int amount, String notes, {String userName = 'Admin'}) async {
+    await updateStock(
+      productId: productId,
+      amount: -amount,
+      action: 'Deduction',
+      userName: userName,
+      notes: notes,
+    );
   }
 
   // --- Order Management ---
@@ -244,6 +321,9 @@ class AdminCubit extends Cubit<AdminState> {
         'date': DateTime.now().toIso8601String(),
       });
       order['statusTimeline'] = timeline;
+
+      // Sync status update to Firestore
+      _mockDb.orders.syncDocument(orderId);
 
       await loadDashboard();
     } catch (e) {

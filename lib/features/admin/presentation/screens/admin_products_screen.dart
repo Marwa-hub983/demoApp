@@ -32,19 +32,59 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
     final nameCtrl = TextEditingController(text: existingProduct?.name);
     final descCtrl = TextEditingController(text: existingProduct?.description);
     final priceCtrl = TextEditingController(
-      text: existingProduct?.price.toString(),
+      text: existingProduct?.price?.toString() ?? '',
     );
     final discountCtrl = TextEditingController(
-      text: existingProduct?.discount.toString(),
+      text: existingProduct?.discount?.toString() ?? '',
     );
     final stockCtrl = TextEditingController(
-      text: existingProduct?.stock.toString(),
+      text: existingProduct?.stock?.toString() ?? '',
     );
-    final skuCtrl = TextEditingController(text: existingProduct?.sku);
-    final barcodeCtrl = TextEditingController(text: existingProduct?.barcode);
+
+    final state = context.read<AdminCubit>().state;
+
+    // Helpers to generate unique SKU and Barcode sequentially
+    String generateUniqueSku() {
+      int maxSeq = 0;
+      final regExp = RegExp(r'^SKU-(\d+)$');
+      for (var p in state.products) {
+        final match = regExp.firstMatch(p.sku);
+        if (match != null) {
+          final seq = int.tryParse(match.group(1) ?? '0') ?? 0;
+          if (seq > maxSeq) {
+            maxSeq = seq;
+          }
+        }
+      }
+      final nextSeq = maxSeq + 1;
+      return 'SKU-${nextSeq.toString().padLeft(6, '0')}';
+    }
+
+    String generateUniqueBarcode() {
+      int maxSeq = 0;
+      final regExp = RegExp(r'^890(\d{10})$');
+      for (var p in state.products) {
+        final match = regExp.firstMatch(p.barcode);
+        if (match != null) {
+          final seq = int.tryParse(match.group(1) ?? '0') ?? 0;
+          if (seq > maxSeq) {
+            maxSeq = seq;
+          }
+        }
+      }
+      final nextSeq = maxSeq > 0 ? maxSeq + 1 : 12;
+      return '890${nextSeq.toString().padLeft(10, '0')}';
+    }
+
+    final skuCtrl = TextEditingController(
+      text: existingProduct?.sku ?? generateUniqueSku(),
+    );
+    final barcodeCtrl = TextEditingController(
+      text: existingProduct?.barcode ?? generateUniqueBarcode(),
+    );
 
     String? selectedCategoryId = existingProduct?.categoryId;
-    final state = context.read<AdminCubit>().state;
+    // final state = context.read<AdminCubit>().state;
     if (selectedCategoryId == null && state.categories.isNotEmpty) {
       selectedCategoryId = state.categories.first.id;
     }
@@ -116,8 +156,24 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
                         child: CustomTextField(
                           controller: skuCtrl,
                           labelText: 'SKU Code',
-                          validator: (val) =>
-                              val!.isEmpty ? 'SKU required' : null,
+                          suffixIcon: isEdit ? null : Icons.refresh,
+                          onSuffixIconPressed: isEdit
+                              ? null
+                              : () {
+                                  skuCtrl.text = generateUniqueSku();
+                                },
+                          validator: (val) {
+                            if (val == null || val.isEmpty)
+                              return 'SKU required';
+                            final skuExists = state.products.any(
+                              (p) =>
+                                  p.sku.trim().toLowerCase() ==
+                                      val.trim().toLowerCase() &&
+                                  p.id != existingProduct?.id,
+                            );
+                            if (skuExists) return 'SKU already exists';
+                            return null;
+                          },
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -125,8 +181,24 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
                         child: CustomTextField(
                           controller: barcodeCtrl,
                           labelText: 'Barcode',
-                          validator: (val) =>
-                              val!.isEmpty ? 'Barcode required' : null,
+                          suffixIcon: isEdit ? null : Icons.refresh,
+                          onSuffixIconPressed: isEdit
+                              ? null
+                              : () {
+                                  barcodeCtrl.text = generateUniqueBarcode();
+                                },
+                          validator: (val) {
+                            if (val == null || val.isEmpty)
+                              return 'Barcode required';
+                            final barcodeExists = state.products.any(
+                              (p) =>
+                                  p.barcode.trim().toLowerCase() ==
+                                      val.trim().toLowerCase() &&
+                                  p.id != existingProduct?.id,
+                            );
+                            if (barcodeExists) return 'Barcode already exists';
+                            return null;
+                          },
                         ),
                       ),
                     ],
@@ -159,42 +231,62 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
             ),
             CustomButton(
               text: 'Save',
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  if (isEdit) {
-                    context.read<AdminCubit>().editProduct(
-                      ProductEntity(
-                        id: existingProduct.id,
+                  try {
+                    if (isEdit) {
+                      await context.read<AdminCubit>().editProduct(
+                        ProductEntity(
+                          id: existingProduct.id,
+                          name: nameCtrl.text.trim(),
+                          description: descCtrl.text.trim(),
+                          price: double.parse(priceCtrl.text),
+                          discount: double.parse(discountCtrl.text),
+                          categoryId: selectedCategoryId!,
+                          stock: existingProduct.stock,
+                          sku: skuCtrl.text.trim(),
+                          barcode: barcodeCtrl.text.trim(),
+                          images: existingProduct.images,
+                          variants: existingProduct.variants,
+                          ratings: existingProduct.ratings,
+                          reviews: existingProduct.reviews,
+                          isEnabled: existingProduct.isEnabled,
+                        ),
+                      );
+                    } else {
+                      await context.read<AdminCubit>().createProduct(
                         name: nameCtrl.text.trim(),
                         description: descCtrl.text.trim(),
                         price: double.parse(priceCtrl.text),
                         discount: double.parse(discountCtrl.text),
                         categoryId: selectedCategoryId!,
-                        stock: existingProduct.stock,
+                        initialStock: int.parse(stockCtrl.text),
                         sku: skuCtrl.text.trim(),
                         barcode: barcodeCtrl.text.trim(),
-                        images: existingProduct.images,
-                        variants: existingProduct.variants,
-                        ratings: existingProduct.ratings,
-                        reviews: existingProduct.reviews,
-                        isEnabled: existingProduct.isEnabled,
+                        images: const [],
+                        variants: const {},
+                      );
+                    }
+                    Navigator.pop(dialogCtx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isEdit
+                              ? 'Product "${nameCtrl.text.trim()}" updated successfully!'
+                              : 'Product "${nameCtrl.text.trim()}" created successfully!',
+                        ),
                       ),
                     );
-                  } else {
-                    context.read<AdminCubit>().createProduct(
-                      name: nameCtrl.text.trim(),
-                      description: descCtrl.text.trim(),
-                      price: double.parse(priceCtrl.text),
-                      discount: double.parse(discountCtrl.text),
-                      categoryId: selectedCategoryId!,
-                      initialStock: int.parse(stockCtrl.text),
-                      sku: skuCtrl.text.trim(),
-                      barcode: barcodeCtrl.text.trim(),
-                      images: const [],
-                      variants: const {},
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          e.toString().replaceAll('Exception: ', ''),
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
-                  Navigator.pop(dialogCtx);
                 }
               },
               width: 100,

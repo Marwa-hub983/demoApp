@@ -1,23 +1,139 @@
-import 'dart:convert';
+
+import 'dart:collection';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
+
+class FirestoreList extends ListBase<Map<String, dynamic>> {
+  final String collectionPath;
+  final List<Map<String, dynamic>> _innerList = [];
+
+  FirestoreList(this.collectionPath);
+
+  @override
+  int get length => _innerList.length;
+
+  @override
+  set length(int newLength) {
+    _innerList.length = newLength;
+  }
+
+  @override
+  Map<String, dynamic> operator [](int index) => _innerList[index];
+
+  @override
+  void operator []=(int index, Map<String, dynamic> value) {
+    _innerList[index] = value;
+    _syncToFirestore(value);
+  }
+
+  @override
+  void add(Map<String, dynamic> element) {
+    _innerList.add(element);
+    _syncToFirestore(element);
+  }
+
+  @override
+  void addAll(Iterable<Map<String, dynamic>> iterable) {
+    _innerList.addAll(iterable);
+    for (var element in iterable) {
+      _syncToFirestore(element);
+    }
+  }
+
+  @override
+  bool remove(Object? element) {
+    if (element is Map<String, dynamic>) {
+      final id = element['id'] as String?;
+      if (id != null) {
+        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+      }
+    }
+    return _innerList.remove(element);
+  }
+
+  @override
+  void removeWhere(bool Function(Map<String, dynamic> element) test) {
+    final toRemove = _innerList.where(test).toList();
+    for (var element in toRemove) {
+      final id = element['id'] as String?;
+      if (id != null) {
+        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+      }
+    }
+    _innerList.removeWhere(test);
+  }
+
+  @override
+  void clear() {
+    for (var element in _innerList) {
+      final id = element['id'] as String?;
+      if (id != null) {
+        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+      }
+    }
+    _innerList.clear();
+  }
+
+  void _syncToFirestore(Map<String, dynamic> element) {
+    final id = element['id'] as String?;
+    if (id != null) {
+      FirebaseFirestore.instance.collection(collectionPath).doc(id).set(element);
+    }
+  }
+
+  void syncDocument(String id) {
+    try {
+      final doc = _innerList.firstWhere((e) => e['id'] == id);
+      _syncToFirestore(doc);
+    } catch (_) {}
+  }
+
+  Future<void> fetchFromFirestore() async {
+    final snapshot = await FirebaseFirestore.instance.collection(collectionPath).get();
+    _innerList.clear();
+    for (var doc in snapshot.docs) {
+      _innerList.add(doc.data());
+    }
+  }
+}
 
 @lazySingleton
 class MockDatabaseService {
   final _uuid = const Uuid();
 
-  // Mock Tables
-  final List<Map<String, dynamic>> users = [];
-  final List<Map<String, dynamic>> products = [];
-  final List<Map<String, dynamic>> categories = [];
-  final List<Map<String, dynamic>> orders = [];
+  // Cache synchronized collections linked to Firestore
+  final users = FirestoreList('users');
+  final products = FirestoreList('products');
+  final categories = FirestoreList('categories');
+  final orders = FirestoreList('orders');
+  final stockHistory = FirestoreList('stock_history');
+
+  // Unused tables maintained as basic lists to preserve compilation
   final List<Map<String, dynamic>> cartItems = [];
   final List<Map<String, dynamic>> wishlistItems = [];
-  final List<Map<String, dynamic>> stockHistory = [];
+  final List<Map<String, dynamic>> stockLogs = [];
   final List<Map<String, dynamic>> notifications = [];
 
-  MockDatabaseService() {
-    _seedData();
+  MockDatabaseService();
+
+  Future<void> init() async {
+    try {
+      // 1. Fetch live collections from Firestore
+      await users.fetchFromFirestore();
+      await products.fetchFromFirestore();
+      await categories.fetchFromFirestore();
+      await orders.fetchFromFirestore();
+      await stockHistory.fetchFromFirestore();
+    } catch (e) {
+      print("Firestore Initialization Warning: $e");
+      print("Falling back to local in-memory database seeding.");
+    }
+
+    // 2. If the products table is empty (database newly created or offline fallback), seed initial catalog
+    if (products.isEmpty) {
+      _seedData();
+    }
   }
 
   void _seedData() {

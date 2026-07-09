@@ -56,7 +56,14 @@ class AuthCubit extends Cubit<AuthState> {
       final user = await _authRepository.loginWithEmail(email, password);
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError(e.toString().replaceAll('AuthException: ', '').replaceAll('Exception: ', '')));
+      emit(
+        AuthError(
+          e
+              .toString()
+              .replaceAll('AuthException: ', '')
+              .replaceAll('Exception: ', ''),
+        ),
+      );
     }
   }
 
@@ -74,7 +81,14 @@ class AuthCubit extends Cubit<AuthState> {
       );
       emit(AuthAuthenticated(user));
     } catch (e) {
-      emit(AuthError(e.toString().replaceAll('AuthException: ', '').replaceAll('Exception: ', '')));
+      emit(
+        AuthError(
+          e
+              .toString()
+              .replaceAll('AuthException: ', '')
+              .replaceAll('Exception: ', ''),
+        ),
+      );
     }
   }
 
@@ -85,6 +99,27 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    emit(AuthLoading()); // 1. Shows a loading spinner on the button
+    try {
+      // 2. Triggers the real Google Sign-In & Firebase Auth logic
+      final user = await _authRepository.loginWithGoogle();
+
+      // 3. Tells the UI the user is logged in (redirects to Home Screen)
+      emit(AuthAuthenticated(user));
+    } catch (e) {
+      // 4. Catches errors (e.g. user cancelled) and shows a nice message
+      emit(
+        AuthError(
+          e
+              .toString()
+              .replaceAll('AuthException: ', '')
+              .replaceAll('Exception: ', ''),
+        ),
+      );
     }
   }
 }

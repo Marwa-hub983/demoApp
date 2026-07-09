@@ -17,6 +17,7 @@ import '../../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/admin/presentation/screens/admin_products_screen.dart';
 import '../../features/admin/presentation/screens/admin_orders_screen.dart';
 import '../../features/admin/presentation/screens/admin_inventory_screen.dart';
+import '../widgets/main_navigation_shell.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -67,10 +68,32 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.forgotPassword,
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-    GoRoute(
-      path: AppRoutes.home,
-      builder: (context, state) => const HomeScreen(),
+    
+    // Nested Shell navigation for Home, Cart, Profile, and Admin Dashboard
+    ShellRoute(
+      builder: (context, state, child) {
+        return MainNavigationShell(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: AppRoutes.home,
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.cart,
+          builder: (context, state) => const CartScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.adminDashboard,
+          builder: (context, state) => const AdminDashboardScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.profile,
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
     ),
+
     GoRoute(
       path: AppRoutes.search,
       builder: (context, state) => const SearchScreen(),
@@ -79,12 +102,9 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.productDetails,
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
-        return ProductDetailsScreen(id: id);
+        final heroTag = state.uri.queryParameters['heroTag'] ?? 'product_image_$id';
+        return ProductDetailsScreen(id: id, heroTag: heroTag);
       },
-    ),
-    GoRoute(
-      path: AppRoutes.cart,
-      builder: (context, state) => const CartScreen(),
     ),
     GoRoute(
       path: AppRoutes.wishlist,
@@ -99,16 +119,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const OrdersScreen(),
     ),
     GoRoute(
-      path: AppRoutes.profile,
-      builder: (context, state) => const ProfileScreen(),
-    ),
-    GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const ProfileScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.adminDashboard,
-      builder: (context, state) => const AdminDashboardScreen(),
     ),
     GoRoute(
       path: AppRoutes.adminProducts,

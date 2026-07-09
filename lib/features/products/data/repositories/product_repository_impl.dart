@@ -34,10 +34,18 @@ class ProductRepositoryImpl implements ProductRepository {
         if (!(item['isEnabled'] as bool)) return false;
         if (categoryId != null && item['categoryId'] != categoryId) return false;
         if (searchQuery != null && searchQuery.isNotEmpty) {
-          final query = searchQuery.toLowerCase();
+          final query = searchQuery.trim().toLowerCase();
           final name = (item['name'] as String).toLowerCase();
           final desc = (item['description'] as String).toLowerCase();
-          if (!name.contains(query) && !desc.contains(query)) return false;
+          final sku = ((item['sku'] ?? '') as String).toLowerCase();
+          final barcode = ((item['barcode'] ?? '') as String).toLowerCase();
+          
+          if (!name.contains(query) &&
+              !desc.contains(query) &&
+              !sku.contains(query) &&
+              !barcode.contains(query)) {
+            return false;
+          }
         }
         return true;
       },
@@ -99,6 +107,9 @@ class ProductRepositoryImpl implements ProductRepository {
 
     product['reviews'] = reviews;
     product['ratings'] = double.parse(avgRating.toStringAsFixed(1));
+
+    // Sync review data to Firestore
+    _mockDb.products.syncDocument(productId);
   }
 
   ProductEntity _mapToProductEntity(Map<String, dynamic> e) {

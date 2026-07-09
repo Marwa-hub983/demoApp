@@ -91,28 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             onPressed: () => context.push(AppRoutes.wishlist),
           ),
-          // Cart Action Button
-          IconButton(
-            icon: BlocBuilder<CartCubit, CartState>(
-              builder: (context, state) {
-                final count = state.items.fold(
-                  0,
-                  (sum, item) => sum + item.quantity,
-                );
-                return Badge(
-                  label: Text(count.toString()),
-                  isLabelVisible: count > 0,
-                  child: const Icon(Icons.shopping_cart_outlined),
-                );
-              },
-            ),
-            onPressed: () => context.push(AppRoutes.cart),
-          ),
-          // Profile Action Button
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => context.push(AppRoutes.profile),
-          ),
         ],
       ),
       body: BlocBuilder<ShopCubit, ShopState>(
@@ -417,10 +395,11 @@ class _ProductItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final metrics = theme.extension<AppMetrics>() ?? AppMetrics.standard();
+    final heroTag = 'product_image_${product.id}';
 
     return GestureDetector(
       onTap: () => context.push(
-        '${AppRoutes.productDetails.replaceAll(':id', product.id)}',
+        '${AppRoutes.productDetails.replaceAll(':id', product.id)}?heroTag=$heroTag',
       ),
       child: Card(
         clipBehavior: Clip.antiAlias,
@@ -432,7 +411,7 @@ class _ProductItemCard extends StatelessWidget {
                 children: [
                   // Hero Image
                   Hero(
-                    tag: 'product_image_${product.id}',
+                    tag: heroTag,
                     child: Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(

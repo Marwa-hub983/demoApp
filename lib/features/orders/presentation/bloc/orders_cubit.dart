@@ -218,6 +218,9 @@ class OrdersCubit extends Cubit<OrdersState> {
           final newStock = currentStock - item.quantity;
           prod['stock'] = newStock < 0 ? 0 : newStock;
 
+          // Sync product stock level back to Firestore
+          _mockDb.products.syncDocument(item.productId);
+
           // Add history logs
           _mockDb.stockHistory.add({
             'id': 'stock_log_${DateTime.now().millisecondsSinceEpoch}_${item.productId}',

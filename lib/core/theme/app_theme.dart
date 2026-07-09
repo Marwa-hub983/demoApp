@@ -9,11 +9,11 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF0F172A), // Slate 900
+        primary: Color(0xFF065F46), // Emerald 800
         onPrimary: Colors.white,
         secondary: Color(0xFF475569), // Slate 600
         onSecondary: Colors.white,
-        tertiary: Color(0xFF0D9488), // Teal 600
+        tertiary: Color(0xFF065F46), // Emerald 800
         onTertiary: Colors.white,
         error: Color(0xFFEF4444), // Red 500
         onError: Colors.white,
@@ -42,7 +42,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: const Color(0xFF065F46),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
@@ -58,7 +58,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF0F172A),
+          foregroundColor: const Color(0xFF065F46),
           side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.5), // Slate 300
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: const RoundedRectangleBorder(
@@ -83,7 +83,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          borderSide: BorderSide(color: Color(0xFF0F172A), width: 1.5),
+          borderSide: BorderSide(color: Color(0xFF065F46), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -105,7 +105,7 @@ class AppTheme {
           warning: Color(0xFFF59E0B), // Amber 500
           shadowColor: Color(0x0A000000),
           primaryGradient: LinearGradient(
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+            colors: [Color(0xFF065F46), Color(0xFF0D9488)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

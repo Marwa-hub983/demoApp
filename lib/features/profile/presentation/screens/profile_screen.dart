@@ -7,7 +7,9 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../authentication/presentation/bloc/auth_cubit.dart';
 
 // Global ValueNotifier to easily trigger Theme changes across the app without complex boilerplate
-final ValueNotifier<ThemeMode> appThemeModeNotifier = ValueNotifier<ThemeMode>(ThemeMode.light);
+final ValueNotifier<ThemeMode> appThemeModeNotifier = ValueNotifier<ThemeMode>(
+  ThemeMode.light,
+);
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -19,10 +21,12 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
+        leading: context.canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: const Text('My Profile'),
       ),
       body: BlocConsumer<AuthCubit, AuthState>(
@@ -51,12 +55,16 @@ class ProfileScreen extends StatelessWidget {
                         radius: 54,
                         backgroundImage: user.profilePicture != null
                             ? NetworkImage(user.profilePicture!)
-                            : const NetworkImage('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'),
+                            : const NetworkImage(
+                                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+                              ),
                       ),
                       SizedBox(height: metrics.space16),
                       Text(
                         user.fullName,
-                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: metrics.space4),
                       Text(
@@ -66,17 +74,24 @@ class ProfileScreen extends StatelessWidget {
                       SizedBox(height: metrics.space8),
                       // Role Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
-                          color: user.isAdmin 
-                              ? theme.colorScheme.tertiary.withOpacity(0.1) 
+                          color: user.isAdmin
+                              ? theme.colorScheme.tertiary.withOpacity(0.1)
                               : theme.colorScheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(metrics.radiusRound),
+                          borderRadius: BorderRadius.circular(
+                            metrics.radiusRound,
+                          ),
                         ),
                         child: Text(
                           user.isAdmin ? 'ADMINISTRATOR' : 'CLIENT PROFILE',
                           style: TextStyle(
-                            color: user.isAdmin ? theme.colorScheme.tertiary : theme.colorScheme.primary,
+                            color: user.isAdmin
+                                ? theme.colorScheme.tertiary
+                                : theme.colorScheme.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 10,
                             letterSpacing: 1,
@@ -92,7 +107,9 @@ class ProfileScreen extends StatelessWidget {
                 // 2. Settings Sections
                 Text(
                   'Account Settings',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: metrics.space12),
                 Card(
@@ -104,10 +121,14 @@ class ProfileScreen extends StatelessWidget {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           // View address sheet
-                          _showAddressBookSheet(context, user.addresses, metrics);
+                          _showAddressBookSheet(
+                            context,
+                            user.addresses,
+                            metrics,
+                          );
                         },
                       ),
-                      const Divider(height: 1),
+                      // const Divider(height: 1, color: Colors.blueGrey),
                       ListTile(
                         leading: const Icon(Icons.receipt_long_outlined),
                         title: const Text('My Purchase History'),
@@ -122,7 +143,9 @@ class ProfileScreen extends StatelessWidget {
 
                 Text(
                   'Preferences',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: metrics.space12),
                 Card(
@@ -138,16 +161,24 @@ class ProfileScreen extends StatelessWidget {
                             title: const Text('Dark Theme Mode'),
                             value: isDark,
                             onChanged: (val) {
-                              appThemeModeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+                              appThemeModeNotifier.value = val
+                                  ? ThemeMode.dark
+                                  : ThemeMode.light;
                             },
                           );
                         },
                       ),
-                      const Divider(height: 1),
+                      // const Divider(height: 1),
                       const ListTile(
                         leading: Icon(Icons.language_outlined),
                         title: Text('App Language'),
-                        trailing: Text('English (US)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        trailing: Text(
+                          'English (US)',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -180,11 +211,18 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showAddressBookSheet(BuildContext context, List<dynamic> addresses, AppMetrics metrics) {
+  void _showAddressBookSheet(
+    BuildContext context,
+    List<dynamic> addresses,
+    AppMetrics metrics,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
       builder: (context) {
         final theme = Theme.of(context);
@@ -194,12 +232,20 @@ class ProfileScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('My Address Book', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'My Address Book',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               SizedBox(height: metrics.space16),
               if (addresses.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: Text('No addresses logged. Add one during checkout.', style: TextStyle(fontStyle: FontStyle.italic)),
+                  child: Text(
+                    'No addresses logged. Add one during checkout.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 )
               else
                 Expanded(
@@ -210,12 +256,24 @@ class ProfileScreen extends StatelessWidget {
                       return ListTile(
                         leading: const Icon(Icons.home),
                         title: Text(addr.title),
-                        subtitle: Text('${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}'),
+                        subtitle: Text(
+                          '${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}',
+                        ),
                         trailing: addr.isDefault
                             ? Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                                child: const Text('DEFAULT', style: TextStyle(color: Colors.green, fontSize: 8, fontWeight: FontWeight.bold)),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'DEFAULT',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               )
                             : null,
                       );
@@ -225,7 +283,7 @@ class ProfileScreen extends StatelessWidget {
               CustomButton(
                 text: 'Dismiss',
                 onPressed: () => Navigator.pop(context),
-              )
+              ),
             ],
           ),
         );

@@ -18,22 +18,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, dynamic>> _slides = [
     {
       'title': 'Premium Curation',
-      'subtitle': 'Explore elite, high-quality products selected specifically for your aesthetic. Luxury experiences delivered straight to your door.',
+      'subtitle':
+          'Explore elite, high-quality products selected specifically for your aesthetic. Luxury experiences delivered straight to your door.',
       'icon': Icons.shopping_bag_outlined,
       'gradient': const [Color(0xFF0F172A), Color(0xFF1E293B)],
     },
     {
       'title': 'Real-Time Logistics',
-      'subtitle': 'Watch your order travel in real-time with visual status logs, instant push updates, and QR invoice generation.',
+      'subtitle':
+          'Watch your order travel in real-time with visual status logs, instant push updates, and QR invoice generation.',
       'icon': Icons.local_shipping_outlined,
       'gradient': const [Color(0xFF0D9488), Color(0xFF115E59)],
     },
     {
       'title': 'Enterprise Control',
-      'subtitle': 'Manage stock catalogs, analyze sales charts, and scan inventory barcodes with the built-in admin dashboard.',
+      'subtitle':
+          'Manage stock catalogs, analyze sales charts, and scan inventory barcodes with the built-in admin dashboard.',
       'icon': Icons.admin_panel_settings_outlined,
       'gradient': const [Color(0xFF334155), Color(0xFF475569)],
-    }
+    },
   ];
 
   @override
@@ -108,10 +111,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: (slide['gradient'] as List<Color>).first.withOpacity(0.3),
+                                color: (slide['gradient'] as List<Color>).first
+                                    .withOpacity(0.3),
                                 blurRadius: 24,
                                 offset: const Offset(0, 8),
-                              )
+                              ),
                             ],
                           ),
                           child: Icon(
@@ -167,7 +171,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   CustomButton(
-                    text: _currentPage == _slides.length - 1 ? 'Get Started' : 'Next',
+                    color: const Color(0xFF065F46),
+                    text: _currentPage == _slides.length - 1
+                        ? 'Get Started'
+                        : 'Next',
                     onPressed: _onNext,
                     width: 150,
                   ),
