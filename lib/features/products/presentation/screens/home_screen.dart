@@ -7,7 +7,7 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/widgets/skeleton_loader.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../authentication/presentation/bloc/auth_cubit.dart';
-import '../../../cart/presentation/bloc/cart_cubit.dart';
+
 import '../../../wishlist/presentation/bloc/wishlist_cubit.dart';
 import '../bloc/shop_cubit.dart';
 

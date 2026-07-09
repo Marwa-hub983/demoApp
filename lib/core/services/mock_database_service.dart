@@ -46,7 +46,17 @@ class FirestoreList extends ListBase<Map<String, dynamic>> {
     if (element is Map<String, dynamic>) {
       final id = element['id'] as String?;
       if (id != null) {
-        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+        try {
+          FirebaseFirestore.instance
+              .collection(collectionPath)
+              .doc(id)
+              .delete()
+              .catchError((e) {
+            print("Firestore Delete Error on $collectionPath/$id: $e");
+          });
+        } catch (e) {
+          print("Firestore Delete Exception on $collectionPath/$id: $e");
+        }
       }
     }
     return _innerList.remove(element);
@@ -58,7 +68,17 @@ class FirestoreList extends ListBase<Map<String, dynamic>> {
     for (var element in toRemove) {
       final id = element['id'] as String?;
       if (id != null) {
-        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+        try {
+          FirebaseFirestore.instance
+              .collection(collectionPath)
+              .doc(id)
+              .delete()
+              .catchError((e) {
+            print("Firestore Delete Error on $collectionPath/$id: $e");
+          });
+        } catch (e) {
+          print("Firestore Delete Exception on $collectionPath/$id: $e");
+        }
       }
     }
     _innerList.removeWhere(test);
@@ -69,7 +89,17 @@ class FirestoreList extends ListBase<Map<String, dynamic>> {
     for (var element in _innerList) {
       final id = element['id'] as String?;
       if (id != null) {
-        FirebaseFirestore.instance.collection(collectionPath).doc(id).delete();
+        try {
+          FirebaseFirestore.instance
+              .collection(collectionPath)
+              .doc(id)
+              .delete()
+              .catchError((e) {
+            print("Firestore Delete Error on $collectionPath/$id: $e");
+          });
+        } catch (e) {
+          print("Firestore Delete Exception on $collectionPath/$id: $e");
+        }
       }
     }
     _innerList.clear();
@@ -78,7 +108,17 @@ class FirestoreList extends ListBase<Map<String, dynamic>> {
   void _syncToFirestore(Map<String, dynamic> element) {
     final id = element['id'] as String?;
     if (id != null) {
-      FirebaseFirestore.instance.collection(collectionPath).doc(id).set(element);
+      try {
+        FirebaseFirestore.instance
+            .collection(collectionPath)
+            .doc(id)
+            .set(element)
+            .catchError((e) {
+          print("Firestore Write Error on $collectionPath/$id: $e");
+        });
+      } catch (e) {
+        print("Firestore Write Exception on $collectionPath/$id: $e");
+      }
     }
   }
 

@@ -277,9 +277,9 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen>
 
     String? selectedCategoryId = product.categoryId;
     final state = context.read<AdminCubit>().state;
-    if (selectedCategoryId == null && state.categories.isNotEmpty) {
-      selectedCategoryId = state.categories.first.id;
-    }
+    // if (selectedCategoryId == null && state.categories.isNotEmpty) {
+    //   selectedCategoryId = state.categories.first.id;
+    // }
 
     showDialog(
       context: context,
@@ -295,106 +295,107 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen>
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomTextField(
-                    controller: nameCtrl,
-                    labelText: 'Product Name',
-                    validator: (val) => val!.isEmpty ? 'Name required' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    controller: descCtrl,
-                    labelText: 'Description',
-                    validator: (val) =>
-                        val!.isEmpty ? 'Description required' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          controller: priceCtrl,
-                          labelText: 'Price (\$)',
-                          keyboardType: TextInputType.number,
-                          validator: (val) =>
-                              val!.isEmpty ? 'Price required' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomTextField(
-                          controller: discountCtrl,
-                          labelText: 'Discount (%)',
-                          keyboardType: TextInputType.number,
-                          validator: (val) =>
-                              val!.isEmpty ? 'Discount required' : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          controller: skuCtrl,
-                          labelText: 'SKU Code',
-                          validator: (val) {
-                            if (val == null || val.isEmpty)
-                              return 'SKU required';
-                            final skuExists = state.products.any(
-                              (p) =>
-                                  p.sku.trim().toLowerCase() ==
-                                      val.trim().toLowerCase() &&
-                                  p.id != product.id,
-                            );
-                            if (skuExists) return 'SKU already exists';
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomTextField(
-                          controller: barcodeCtrl,
-                          labelText: 'Barcode',
-                          validator: (val) {
-                            if (val == null || val.isEmpty)
-                              return 'Barcode required';
-                            final barcodeExists = state.products.any(
-                              (p) =>
-                                  p.barcode.trim().toLowerCase() ==
-                                      val.trim().toLowerCase() &&
-                                  p.id != product.id,
-                            );
-                            if (barcodeExists) return 'Barcode already exists';
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: selectedCategoryId,
-                    decoration: const InputDecoration(
-                      labelText: 'Select Category',
+                  children: [
+                    CustomTextField(
+                      controller: nameCtrl,
+                      labelText: 'Product Name',
+                      validator: (val) => val!.isEmpty ? 'Name required' : null,
                     ),
-                    items: state.categories.map((c) {
-                      return DropdownMenuItem<String>(
-                        value: c.id,
-                        child: Text(c.name),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      selectedCategoryId = val;
-                    },
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    CustomTextField(
+                      controller: descCtrl,
+                      labelText: 'Description',
+                      validator: (val) =>
+                          val!.isEmpty ? 'Description required' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            controller: priceCtrl,
+                            labelText: 'Price (\$)',
+                            keyboardType: TextInputType.number,
+                            validator: (val) =>
+                                val!.isEmpty ? 'Price required' : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: discountCtrl,
+                            labelText: 'Discount (%)',
+                            keyboardType: TextInputType.number,
+                            validator: (val) =>
+                                val!.isEmpty ? 'Discount required' : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            controller: skuCtrl,
+                            labelText: 'SKU Code',
+                            validator: (val) {
+                              if (val == null || val.isEmpty)
+                                return 'SKU required';
+                              final skuExists = state.products.any(
+                                (p) =>
+                                    p.sku.trim().toLowerCase() ==
+                                        val.trim().toLowerCase() &&
+                                    p.id != product.id,
+                              );
+                              if (skuExists) return 'SKU already exists';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: barcodeCtrl,
+                            labelText: 'Barcode',
+                            validator: (val) {
+                              if (val == null || val.isEmpty)
+                                return 'Barcode required';
+                              final barcodeExists = state.products.any(
+                                (p) =>
+                                    p.barcode.trim().toLowerCase() ==
+                                        val.trim().toLowerCase() &&
+                                    p.id != product.id,
+                              );
+                              if (barcodeExists)
+                                return 'Barcode already exists';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategoryId,
+                      decoration: const InputDecoration(
+                        labelText: 'Select Category',
+                      ),
+                      items: state.categories.map((c) {
+                        return DropdownMenuItem<String>(
+                          value: c.id,
+                          child: Text(c.name),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        selectedCategoryId = val;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx),

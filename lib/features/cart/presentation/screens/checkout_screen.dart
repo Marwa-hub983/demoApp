@@ -28,12 +28,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _cardExpiryController = TextEditingController();
   final _cardCvvController = TextEditingController();
 
-  String _selectedPaymentMethod = 'Mock Credit Card';
+  String _selectedPaymentMethod = 'Cash on Delivery';
   bool _orderPlaced = false;
 
   @override
   void initState() {
     super.initState();
+    // Reset order state to start with clean flags
+    context.read<OrdersCubit>().resetOrderState();
+    
     // Pre-populate address if available
     final auth = context.read<AuthCubit>().state;
     if (auth is AuthAuthenticated && auth.user.addresses.isNotEmpty) {
@@ -254,82 +257,108 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
                   SizedBox(height: metrics.space12),
-                  ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(metrics.radius12),
-                      side: BorderSide(
-                        color: theme.colorScheme.primary,
-                        width: 1.5,
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.credit_card,
-                      color: theme.colorScheme.primary,
-                    ),
-                    title: const Text('Credit Card / Debit Card'),
-                    trailing: Icon(
-                      Icons.radio_button_checked,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-
-                  SizedBox(height: metrics.space16),
-
-                  // 3. Card details
-                  CustomTextField(
-                    controller: _cardNameController,
-                    labelText: 'Cardholder Name',
-                    prefixIcon: Icons.person_outline,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Enter cardholder name' : null,
-                  ),
-                  SizedBox(height: metrics.space12),
-                  CustomTextField(
-                    controller: _cardNumberController,
-                    labelText: 'Card Number',
-                    hintText: '1111 2222 3333 4444',
-                    prefixIcon: Icons.payment,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      final val = value?.replaceAll(' ', '') ?? '';
-                      if (val.length != 16) {
-                        return 'Card number must be 16 digits';
-                      }
-                      return null;
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPaymentMethod = 'Cash on Delivery';
+                      });
                     },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: metrics.space16,
+                        vertical: metrics.space12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _selectedPaymentMethod == 'Cash on Delivery'
+                            ? theme.colorScheme.primary.withOpacity(0.05)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(metrics.radius12),
+                        border: Border.all(
+                          color: _selectedPaymentMethod == 'Cash on Delivery'
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outlineVariant,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.money_outlined,
+                            color: _selectedPaymentMethod == 'Cash on Delivery'
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.secondary,
+                          ),
+                          SizedBox(width: metrics.space12),
+                          const Text(
+                            'Cash on Delivery',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          Radio<String>(
+                            value: 'Cash on Delivery',
+                            groupValue: _selectedPaymentMethod,
+                            activeColor: theme.colorScheme.primary,
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedPaymentMethod = val!;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   SizedBox(height: metrics.space12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextField(
-                          controller: _cardExpiryController,
-                          labelText: 'Expiry (MM/YY)',
-                          hintText: '12/28',
-                          validator: (value) {
-                            if (value!.isEmpty || !value.contains('/')) {
-                              return 'MM/YY required';
-                            }
-                            return null;
-                          },
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPaymentMethod = 'Card on Delivery';
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: metrics.space16,
+                        vertical: metrics.space12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _selectedPaymentMethod == 'Card on Delivery'
+                            ? theme.colorScheme.primary.withOpacity(0.05)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(metrics.radius12),
+                        border: Border.all(
+                          color: _selectedPaymentMethod == 'Card on Delivery'
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outlineVariant,
+                          width: 1.5,
                         ),
                       ),
-                      SizedBox(width: metrics.space12),
-                      Expanded(
-                        child: CustomTextField(
-                          controller: _cardCvvController,
-                          labelText: 'CVV',
-                          hintText: '123',
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value!.length != 3) {
-                              return 'CVV must be 3 digits';
-                            }
-                            return null;
-                          },
-                        ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.credit_card_outlined,
+                            color: _selectedPaymentMethod == 'Card on Delivery'
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.secondary,
+                          ),
+                          SizedBox(width: metrics.space12),
+                          const Text(
+                            'Card on Delivery',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const Spacer(),
+                          Radio<String>(
+                            value: 'Card on Delivery',
+                            groupValue: _selectedPaymentMethod,
+                            activeColor: theme.colorScheme.primary,
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedPaymentMethod = val!;
+                              });
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
 
                   const Divider(height: 32),

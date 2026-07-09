@@ -74,19 +74,19 @@ class MainNavigationShell extends StatelessWidget {
           body: child,
           bottomNavigationBar: SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: metrics.space24,
-                vertical: metrics.space12,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                   child: Container(
-                    height: 70,
+                    height: 60,
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surface.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
                         width: 1.5,
@@ -170,12 +170,12 @@ class MainNavigationShell extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? theme.colorScheme.primary.withValues(alpha: 0.08)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: isCart
             ? BlocBuilder<CartCubit, CartState>(

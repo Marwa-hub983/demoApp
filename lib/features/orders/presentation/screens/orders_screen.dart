@@ -178,8 +178,8 @@ class _OrdersScreenState extends State<OrdersScreen>
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.home_outlined),
+          onPressed: () => context.go(AppRoutes.home),
         ),
         title: const Text('My Orders'),
         bottom: TabBar(

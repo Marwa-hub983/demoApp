@@ -242,4 +242,12 @@ class OrdersCubit extends Cubit<OrdersState> {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }
   }
+
+  void resetOrderState() {
+    emit(state.copyWith(
+      isLoading: false,
+      orderSuccess: false,
+      errorMessage: null,
+    ));
+  }
 }
