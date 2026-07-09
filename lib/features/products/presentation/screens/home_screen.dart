@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:demo_app/features/products/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,10 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
-  late final PageController _promoPageController;
-  Timer? _promoTimer;
   int _currentPromoIndex = 0;
-  static const int _totalPromos = 3;
 
   final List<Map<String, dynamic>> _promos = [
     {
@@ -59,36 +56,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _promoPageController = PageController();
     // Initial fetch
     context.read<ShopCubit>().loadHomeData();
-    _startPromoAutoPlay();
-  }
-
-  void _startPromoAutoPlay() {
-    _promoTimer?.cancel();
-    _promoTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (!mounted) return;
-      int nextIndex = _currentPromoIndex + 1;
-      if (nextIndex >= _totalPromos) {
-        nextIndex = 0;
-      }
-      if (_promoPageController.hasClients) {
-        _promoPageController.animateToPage(
-          nextIndex,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     _searchController.dispose();
-    _promoPageController.dispose();
-    _promoTimer?.cancel();
     super.dispose();
   }
 
@@ -204,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // 2. Promo Banner Carousel
+                // 2. Promo Banner Carousel (using CarouselSlider package)
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -213,82 +188,80 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Column(
                       children: [
-                        SizedBox(
-                          height: 160,
-                          child: PageView.builder(
-                            controller: _promoPageController,
-                            itemCount: _promos.length,
-                            onPageChanged: (index) {
+                        CarouselSlider(
+                          options: CarouselOptions(
+                            height: 160.0,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 4),
+                            viewportFraction: 1.0,
+                            enlargeCenterPage: false,
+                            onPageChanged: (index, reason) {
                               setState(() {
                                 _currentPromoIndex = index;
                               });
                             },
-                            itemBuilder: (context, index) {
-                              final promo = _promos[index];
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 4.0,
-                                ),
-                                padding: EdgeInsets.all(metrics.space24),
-                                decoration: BoxDecoration(
-                                  gradient: promo['gradient'] as Gradient,
-                                  borderRadius: BorderRadius.circular(
-                                    metrics.radius16,
+                          ),
+                          items: _promos.map((promo) {
+                            return Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                              padding: EdgeInsets.all(metrics.space24),
+                              decoration: BoxDecoration(
+                                gradient: promo['gradient'] as Gradient,
+                                borderRadius: BorderRadius.circular(metrics.radius16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.08),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.tertiary,
-                                        borderRadius: BorderRadius.circular(
-                                          metrics.radius4,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        promo['tag'] as String,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.tertiary,
+                                      borderRadius: BorderRadius.circular(
+                                        metrics.radius4,
                                       ),
                                     ),
-                                    SizedBox(height: metrics.space12),
-                                    Text(
-                                      promo['title'] as String,
+                                    child: Text(
+                                      promo['tag'] as String,
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w900,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: metrics.space4),
-                                    Text(
-                                      promo['subtitle'] as String,
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 13,
-                                      ),
+                                  ),
+                                  SizedBox(height: metrics.space12),
+                                  Text(
+                                    promo['title'] as String,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
                                     ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  ),
+                                  SizedBox(height: metrics.space4),
+                                  Text(
+                                    promo['subtitle'] as String,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                         SizedBox(height: metrics.space8),
                         // Page indicator dots

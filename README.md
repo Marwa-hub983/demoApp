@@ -1,6 +1,6 @@
 # Antigravity Commerce - Enterprise-Grade Flutter E-Commerce Application
 
-An enterprise-ready, premium mini e-commerce mobile application built with **Flutter** using **Clean Architecture** (Feature-First approach), **BLoC/Cubit** for state management, **Hive** for encrypted local database caching, and **GetIt / Injectable** for Dependency Injection.
+An enterprise-ready, premium mini e-commerce mobile application built with **Flutter** using **Clean Architecture** (Feature-First approach), **BLoC/Cubit** for state management, **Hive** for encrypted local database caching, **Cloud Firestore** for backend persistence, and **GetIt / Injectable** for Dependency Injection.
 
 This repository features a complete customer storefront coupled with a secure **Administrator Management Console** featuring real-time inventory tracking, low-stock warnings, and barcode scanner simulation.
 
@@ -65,6 +65,7 @@ lib/
 - **Framework**: Flutter Latest Stable (Material 3)
 - **Language**: Dart (100% Null Safety)
 - **State Management**: `flutter_bloc` (Cubit implementations with global observer logs)
+- **Database / Backend**: **Cloud Firestore** & **Firebase Authentication** (Real-time database sync and server-side verification)
 - **Local Storage**: `hive_flutter` + `flutter_secure_storage` (AES-256 local caches encryption)
 - **Routing**: `go_router` (Deep-link ready structure)
 - **DI Service Locator**: `get_it` + `injectable` (Auto-wires dependency instances during boot)
