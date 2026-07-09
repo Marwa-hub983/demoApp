@@ -65,6 +65,7 @@ dependencies:
   firebase_performance: ^0.11.4+3
 
   # UI & Utilities
+  carousel_slider: ^5.0.0
   lottie: ^3.1.2
   pdf: ^3.11.1
   share_plus: ^13.2.0

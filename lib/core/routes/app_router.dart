@@ -84,6 +84,10 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const CartScreen(),
         ),
         GoRoute(
+          path: AppRoutes.orders,
+          builder: (context, state) => const OrdersScreen(),
+        ),
+        GoRoute(
           path: AppRoutes.adminDashboard,
           builder: (context, state) => const AdminDashboardScreen(),
         ),
@@ -114,10 +118,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.checkout,
       builder: (context, state) => const CheckoutScreen(),
     ),
-    GoRoute(
-      path: AppRoutes.orders,
-      builder: (context, state) => const OrdersScreen(),
-    ),
+
     GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const ProfileScreen(),

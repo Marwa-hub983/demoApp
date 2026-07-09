@@ -133,7 +133,7 @@ class ProfileScreen extends StatelessWidget {
                         leading: const Icon(Icons.receipt_long_outlined),
                         title: const Text('My Purchase History'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => context.push(AppRoutes.orders),
+                        onTap: () => context.go(AppRoutes.orders),
                       ),
                     ],
                   ),
@@ -191,7 +191,7 @@ class ProfileScreen extends StatelessWidget {
                   CustomButton(
                     text: 'Admin Console Dashboard',
                     icon: Icons.admin_panel_settings,
-                    onPressed: () => context.push(AppRoutes.adminDashboard),
+                    onPressed: () => context.go(AppRoutes.adminDashboard),
                   ),
                   SizedBox(height: metrics.space16),
                 ],

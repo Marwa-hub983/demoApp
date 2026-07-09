@@ -36,7 +36,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.initState();
     // Reset order state to start with clean flags
     context.read<OrdersCubit>().resetOrderState();
-    
+
     // Pre-populate address if available
     final auth = context.read<AuthCubit>().state;
     if (auth is AuthAuthenticated && auth.user.addresses.isNotEmpty) {
@@ -247,7 +247,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         value!.isEmpty ? 'Enter zip code' : null,
                   ),
 
-                  const Divider(height: 32),
+                  // const Divider(height: 32),
 
                   // 2. Payment Method
                   Text(
@@ -361,8 +361,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   ),
 
-                  const Divider(height: 32),
-
+                  //  const Divider(height: 32),
+                  SizedBox(height: metrics.space12),
                   // 4. Order Summary Card
                   Card(
                     child: Padding(

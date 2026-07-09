@@ -19,11 +19,14 @@ class MainNavigationShell extends StatelessWidget {
     if (location.startsWith(AppRoutes.cart)) {
       return 1;
     }
-    if (isAdmin && location.startsWith(AppRoutes.adminDashboard)) {
+    if (location.startsWith(AppRoutes.orders)) {
       return 2;
     }
+    if (isAdmin && location.startsWith(AppRoutes.adminDashboard)) {
+      return 3;
+    }
     if (location.startsWith(AppRoutes.profile)) {
-      return isAdmin ? 3 : 2;
+      return isAdmin ? 4 : 3;
     }
     return 0; // Default to Home
   }
@@ -38,9 +41,12 @@ class MainNavigationShell extends StatelessWidget {
           context.go(AppRoutes.cart);
           break;
         case 2:
-          context.go(AppRoutes.adminDashboard);
+          context.go(AppRoutes.orders);
           break;
         case 3:
+          context.go(AppRoutes.adminDashboard);
+          break;
+        case 4:
           context.go(AppRoutes.profile);
           break;
       }
@@ -53,6 +59,9 @@ class MainNavigationShell extends StatelessWidget {
           context.go(AppRoutes.cart);
           break;
         case 2:
+          context.go(AppRoutes.orders);
+          break;
+        case 3:
           context.go(AppRoutes.profile);
           break;
       }
@@ -121,22 +130,31 @@ class MainNavigationShell extends StatelessWidget {
                           isCart: true,
                           isAdmin: isAdmin,
                         ),
+                        _buildTabItem(
+                          context: context,
+                          index: 2,
+                          icon: Icons.receipt_long_outlined,
+                          activeIcon: Icons.receipt_long,
+                          isSelected: selectedIndex == 2,
+                          theme: theme,
+                          isAdmin: isAdmin,
+                        ),
                         if (isAdmin)
                           _buildTabItem(
                             context: context,
-                            index: 2,
+                            index: 3,
                             icon: Icons.admin_panel_settings_outlined,
                             activeIcon: Icons.admin_panel_settings,
-                            isSelected: selectedIndex == 2,
+                            isSelected: selectedIndex == 3,
                             theme: theme,
                             isAdmin: isAdmin,
                           ),
                         _buildTabItem(
                           context: context,
-                          index: isAdmin ? 3 : 2,
+                          index: isAdmin ? 4 : 3,
                           icon: Icons.person_outline_rounded,
                           activeIcon: Icons.person_rounded,
-                          isSelected: selectedIndex == (isAdmin ? 3 : 2),
+                          isSelected: selectedIndex == (isAdmin ? 4 : 3),
                           theme: theme,
                           isAdmin: isAdmin,
                         ),

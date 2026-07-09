@@ -88,7 +88,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         content: Text('${product.name} added to cart!'),
         action: SnackBarAction(
           label: 'View Cart',
-          onPressed: () => context.push(AppRoutes.cart),
+          onPressed: () => context.go(AppRoutes.cart),
         ),
       ),
     );
